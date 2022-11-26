@@ -16,42 +16,57 @@ namespace SteamGameViewer.API.Controllers
 
         [HttpGet]
         [Route("{appId}")]
-        public AppInfo Get(int appId)
+        public async Task<AppInfo> Get(int appId)
+        {
+
+            HttpResponseMessage response = await FetchAppInfo(appId);
+            SteamAppInfo details = await ParseResponse(response);
+
+            var data = details.data;
+            return new AppInfo
+            {
+                Title = data.name,
+                Description = data.short_description,
+                Developer = data.developers.FirstOrDefault(),
+                ReleaseDate = data.release_date.date,
+                Rating = (decimal)data.metacritic.score / 100,
+                CurrentPrice = data.is_free ? 0 : data.price_overview.final / 100,
+                RetailPrice = data.is_free ? 0 : data.price_overview.initial / 100,
+                HeaderImageUrl = data.header_image,
+                LibraryImageUrl = $"https://steamcdn-a.akamaihd.net/steam/apps/{appId}/library_600x900_2x.jpg",
+                ScreenshotUrls = data.screenshots.Select(s => s.path_full)
+            };
+        }
+
+        private static async Task<SteamAppInfo> ParseResponse(HttpResponseMessage response)
+        {
+            var result = await response.Content.ReadFromJsonAsync<AppDetailsResponse>();
+            if (result is null)
+            {
+                throw new Exception("Failed to parse response.");
+            }
+
+            var appInfo = result.First().Value;
+
+            if (!appInfo.success)
+            {
+                throw new Exception("API call was unsuccessful.");
+            }
+
+            return appInfo;
+        }
+
+        private async Task<HttpResponseMessage> FetchAppInfo(int appId)
         {
             _logger.LogInformation("Fetching app id {appId}.", appId);
 
-            return new AppInfo
-            {
-                Title = "Team Fortress 2",
-                Description = "Nine distinct classes provide a broad range of tactical abilities and personalities. Constantly updated with new game modes, maps, equipment and, most importantly, hats!",
-                Developer = "Valve",
-                ReleaseYear = 2007,
-                ReleaseMonth = 10,
-                ReleaseDay = 7,
-                Rating = 0.93m,
-                CurrentPrice = 0,
-                RetailPrice = 19.99m,
-                HeaderImageUrl = "https://cdn.cloudflare.steamstatic.com/steam/apps/440/header.jpg",
-                LibraryImageUrl = "https://cdn.cloudflare.steamstatic.com/steam/apps/440/library_600x900_2x.jpg?t=1665425233",
-                ScreenshotUrls = new[]
-                {
-                    "https://cdn.cloudflare.steamstatic.com/steam/apps/440/ss_ea21f7bbf4f79bada4554df5108d04b6889d3453.jpg",
-                    "https://cdn.cloudflare.steamstatic.com/steam/apps/440/ss_e3aedb2ab36bba8cfe611b1e0eaa807e4bb2d742.jpg",
-                    "https://cdn.cloudflare.steamstatic.com/steam/apps/440/ss_ee24a769dc1d81dcbd7b250d16530394adee4264.jpg",
-                    "https://cdn.cloudflare.steamstatic.com/steam/apps/440/ss_9faaa506d91bf19dbb398e0c06a684b337f85f91.jpg",
-                    "https://cdn.cloudflare.steamstatic.com/steam/apps/440/ss_7de978f22a7059151c31d0488dc57c5c7703c48b.jpg",
-                    "https://cdn.cloudflare.steamstatic.com/steam/apps/440/ss_e79f2490af3247b4b0f8d412d437b72c321cfe3b.jpg",
-                    "https://cdn.cloudflare.steamstatic.com/steam/apps/440/ss_8f28c75172e3d08e65222725202b82f58bfe7df7.jpg",
-                    "https://cdn.cloudflare.steamstatic.com/steam/apps/440/0000002574.jpg",
-                    "https://cdn.cloudflare.steamstatic.com/steam/apps/440/0000002575.jpg",
-                    "https://cdn.cloudflare.steamstatic.com/steam/apps/440/0000002576.jpg",
-                    "https://cdn.cloudflare.steamstatic.com/steam/apps/440/0000002577.jpg",
-                    "https://cdn.cloudflare.steamstatic.com/steam/apps/440/0000002578.jpg",
-                    "https://cdn.cloudflare.steamstatic.com/steam/apps/440/0000002579.jpg",
-                    "https://cdn.cloudflare.steamstatic.com/steam/apps/440/0000002580.jpg",
-                    "https://cdn.cloudflare.steamstatic.com/steam/apps/440/0000002581.jpg",
-                }
-            };
+            var httpClient = new HttpClient();
+
+            var response = await httpClient.GetAsync($"https://store.steampowered.com/api/appdetails?appids={appId}");
+
+            response.EnsureSuccessStatusCode();
+
+            return response;
         }
     }
 }

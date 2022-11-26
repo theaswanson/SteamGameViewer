@@ -4,9 +4,7 @@
     {
         public string? Title { get; set; }
         public string? Description { get; set; }
-        public int ReleaseYear { get; set; }
-        public int ReleaseMonth { get; set; }
-        public int ReleaseDay { get; set; }
+        public string? ReleaseDate { get; set; }
         public string? Developer { get; set; }
         public decimal Rating { get; set; }
         public decimal CurrentPrice { get; set; }
