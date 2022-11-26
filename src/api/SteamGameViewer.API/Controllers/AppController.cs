@@ -29,13 +29,23 @@ namespace SteamGameViewer.API.Controllers
                 Description = data.short_description,
                 Developer = data.developers.FirstOrDefault(),
                 ReleaseDate = data.release_date.date,
-                Rating = (decimal)data.metacritic.score / 100,
-                CurrentPrice = data.is_free ? 0 : data.price_overview.final / 100,
-                RetailPrice = data.is_free ? 0 : data.price_overview.initial / 100,
+                Rating = data.metacritic != null ? (decimal)data.metacritic.score / 100 : null,
+                CurrentPrice = GetPrice(!data.release_date.coming_soon, data.is_free, data.price_overview?.final),
+                RetailPrice = GetPrice(!data.release_date.coming_soon, data.is_free, data.price_overview?.initial),
                 HeaderImageUrl = data.header_image,
                 LibraryImageUrl = $"https://steamcdn-a.akamaihd.net/steam/apps/{appId}/library_600x900_2x.jpg",
                 ScreenshotUrls = data.screenshots.Select(s => s.path_full)
             };
+        }
+
+        private static decimal? GetPrice(bool hasReleased, bool isFree, int? price)
+        {
+            if (!hasReleased)
+            {
+                return null;
+            }
+
+            return isFree ? 0 : (decimal)(price ?? 0) / 100;
         }
 
         private static async Task<SteamAppInfo> ParseResponse(HttpResponseMessage response)
@@ -62,7 +72,7 @@ namespace SteamGameViewer.API.Controllers
 
             var httpClient = new HttpClient();
 
-            var response = await httpClient.GetAsync($"https://store.steampowered.com/api/appdetails?appids={appId}");
+            var response = await httpClient.GetAsync($"https://store.steampowered.com/api/appdetails?appids={appId}&cc=us&l=en");
 
             response.EnsureSuccessStatusCode();
 

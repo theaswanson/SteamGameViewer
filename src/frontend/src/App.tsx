@@ -4,6 +4,7 @@ import { AppInfo } from './models';
 import { getAppInfo } from './api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar, faCircle, faThumbsUp, faUser } from '@fortawesome/free-solid-svg-icons';
+import { useParams } from 'react-router-dom';
 
 const price = (cost: number) => {
 	if (cost === 0) {
@@ -18,6 +19,7 @@ const rating = (rating: number) => {
 }
 
 function App() {
+	const { id } = useParams();
 	const [loading, setLoading] = useState(true);
 	const [appInfo, setAppInfo] = useState<AppInfo | undefined>(undefined);
 	const [backgroundStyle, setBackgroundStyle] = useState<CSSProperties | undefined>(undefined);
@@ -26,7 +28,7 @@ function App() {
 	async function loadAppInfo() {
 		setLoading(true);
 		try {
-			const data = await getAppInfo(440);
+			const data = id ? await getAppInfo(parseInt(id)) : undefined;
 			setAppInfo(data);
 			setBackgroundImageUrl(data ? data.screenshotUrls[0] : undefined);
 		} finally {
@@ -66,16 +68,16 @@ function App() {
 									<FontAwesomeIcon icon={faUser} size="xl" />
 									<p>{appInfo.developer}</p>
 								</div>
-								<div className='detail'>
+								{appInfo.rating && <div className='detail'>
 									<FontAwesomeIcon icon={faThumbsUp} size="xl" />
 									<p>{rating(appInfo.rating)}</p>
-								</div>
-								<div className='prices'>
+								</div>}
+								{appInfo.currentPrice !== undefined && <div className='prices'>
 									<p>{price(appInfo.currentPrice)}</p>
 									{appInfo.currentPrice !== appInfo.retailPrice && (
 										<p className='retail-price'>{price(appInfo.retailPrice)}</p>
 									)}
-								</div>
+								</div>}
 							</div>
 						</div>
 						<div className='info-actions'>

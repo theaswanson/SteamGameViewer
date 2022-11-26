@@ -64,7 +64,7 @@ namespace SteamGameViewer.API.Models
 
     public class Demo
     {
-        public string appid { get; set; }
+        public int appid { get; set; }
         public string description { get; set; }
     }
 
