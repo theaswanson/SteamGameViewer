@@ -51,6 +51,19 @@
   font-weight: bold;
 }
 
+.App .contents .info .info-actions {
+  display: flex;
+  flex-direction: row;
+}
+
+.App .contents .info .info-actions svg:not(:first-of-type) {
+  padding-left: 5px;
+}
+
+.App .contents .info .info-actions svg:not(:last-of-type) {
+  padding-right: 5px;
+}
+
 .prices {
   display: flex;
   gap: 10px;

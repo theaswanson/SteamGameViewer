@@ -3,7 +3,7 @@ import './App.css';
 import { AppInfo } from './models';
 import { getAppInfo } from './api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendar, faThumbsUp, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faCalendar, faCircle, faThumbsUp, faUser } from '@fortawesome/free-solid-svg-icons';
 
 const price = (cost: number) => {
   if (cost === 0) {
@@ -22,7 +22,7 @@ function App() {
   const [appInfo, setAppInfo] = useState<AppInfo | undefined>(undefined);
   const [releaseDate, setReleaseDate] = useState<Date | undefined>(undefined);
   const [backgroundStyle, setBackgroundStyle] = useState<CSSProperties | undefined>(undefined);
-  const [backgroundImageIndex, setBackgroundImageIndex] = useState(0);
+  const [backgroundImageUrl, setBackgroundImageUrl] = useState<string | undefined>(undefined);
 
   async function loadAppInfo() {
     setLoading(true);
@@ -30,6 +30,7 @@ function App() {
       const data = await getAppInfo(440);
       setAppInfo(data);
       setReleaseDate(data ? new Date(data.releaseYear, data.releaseMonth - 1, data.releaseDay) : undefined);
+      setBackgroundImageUrl(data ? data.screenshotUrls[0] : undefined);
     } finally {
       setLoading(false);
     }
@@ -40,27 +41,11 @@ function App() {
   }, []);
 
   useEffect(() => {
-    setBackgroundStyle(appInfo ? { background: `url("${appInfo.screenshotUrls[backgroundImageIndex]}") center center / cover no-repeat rgba(0, 0, 0, 0.5)`, backgroundSize: 'cover', backgroundBlendMode: 'multiply' } : undefined);
-  }, [appInfo, backgroundImageIndex]);
+    setBackgroundStyle(backgroundImageUrl ? { background: `url("${backgroundImageUrl}") center center / cover no-repeat rgba(0, 0, 0, 0.5)`, backgroundSize: 'cover', backgroundBlendMode: 'multiply' } : undefined);
+  }, [backgroundImageUrl]);
 
-  const nextBackgroundImage = () => {
-    let nextIndex: number;
-    if (backgroundImageIndex + 1 === appInfo?.screenshotUrls.length) {
-      nextIndex = 0;
-    } else {
-      nextIndex = backgroundImageIndex + 1;
-    }
-    setBackgroundImageIndex(nextIndex);
-  };
-
-  const previousBackgroundImage = () => {
-    let nextIndex: number;
-    if (backgroundImageIndex === 0) {
-      nextIndex = appInfo!.screenshotUrls.length - 1;
-    } else {
-      nextIndex = backgroundImageIndex - 1;
-    }
-    setBackgroundImageIndex(nextIndex);
+  const selectBackgroundImage = (url: string) => {
+    setBackgroundImageUrl(url);
   };
 
   useEffect(() => {
@@ -100,8 +85,10 @@ function App() {
               </div>
             </div>
             <div className='info-actions'>
-              <button onClick={nextBackgroundImage}>Next</button>
-              <button onClick={previousBackgroundImage}>Previous</button>
+              {appInfo.screenshotUrls.length > 1 && appInfo.screenshotUrls.map((url) => {
+                const style = { color: url === backgroundImageUrl ? 'white' : 'grey', cursor: 'pointer' };
+                return <FontAwesomeIcon icon={faCircle} style={style} size='lg' onClick={() => selectBackgroundImage(url)} />
+              })}
             </div>
           </div>
         </div>
