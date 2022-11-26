@@ -12,6 +12,10 @@
   gap: 80px;
 }
 
+.App .contents .box-art {
+  height: calc(100vh - 80px - 80px);
+}
+
 .App .contents .info {
   display: flex;
   flex-direction: column;
@@ -21,7 +25,7 @@
 .App .contents .info .info-content {
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 60px;
 }
 
 .App .contents .info .info-content .header {
@@ -33,7 +37,14 @@
 .App .contents .info .info-content .details {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 20px;
+}
+
+.App .contents .info .info-content .details .detail {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
 }
 
 .App .contents .info .info-content .details p {

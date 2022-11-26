@@ -2,6 +2,8 @@ import React, { CSSProperties, useEffect, useState } from 'react';
 import './App.css';
 import { AppInfo } from './models';
 import { getAppInfo } from './api';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendar, faThumbsUp, faUser } from '@fortawesome/free-solid-svg-icons';
 
 const price = (cost: number) => {
   if (cost === 0) {
@@ -38,7 +40,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    setBackgroundStyle(appInfo ? { backgroundImage: `url("${appInfo.screenshotUrls[backgroundImageIndex]}")` } : undefined);
+    setBackgroundStyle(appInfo ? { background: `url("${appInfo.screenshotUrls[backgroundImageIndex]}") center center / cover no-repeat rgba(0, 0, 0, 0.5)`, backgroundSize: 'cover', backgroundBlendMode: 'multiply' } : undefined);
   }, [appInfo, backgroundImageIndex]);
 
   const nextBackgroundImage = () => {
@@ -69,7 +71,7 @@ function App() {
     appInfo ? (
       <div className="App" style={backgroundStyle}>
         <div className="contents">
-          <img src={appInfo.libraryImageUrl} alt="Box art" />
+          <img src={appInfo.libraryImageUrl} className="box-art" alt="Box art" />
           <div className="info">
             <div className='info-content'>
               <div className='header'>
@@ -77,9 +79,18 @@ function App() {
                 <p>{appInfo.description}</p>
               </div>
               <div className='details'>
-                <p>Release date: {releaseDate?.toLocaleDateString("en-US", { month: 'long', day: 'numeric', year: 'numeric' })}</p>
-                <p>Developer: {appInfo.developer}</p>
-                <p>Rating: {rating(appInfo.rating)}</p>
+                <div className='detail'>
+                  <FontAwesomeIcon icon={faCalendar} size="xl" />
+                  <p>{releaseDate?.toLocaleDateString("en-US", { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                </div>
+                <div className='detail'>
+                  <FontAwesomeIcon icon={faUser} size="xl" />
+                  <p>{appInfo.developer}</p>
+                </div>
+                <div className='detail'>
+                  <FontAwesomeIcon icon={faThumbsUp} size="xl" />
+                  <p>{rating(appInfo.rating)}</p>
+                </div>
                 <div className='prices'>
                   <p>{price(appInfo.currentPrice)}</p>
                   {appInfo.currentPrice !== appInfo.retailPrice && (
@@ -95,7 +106,7 @@ function App() {
           </div>
         </div>
       </div>
-    ) : (<></>)
+    ) : (<div>Loading failed.</div>)
   );
 }
 
