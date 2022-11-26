@@ -1,0 +1,64 @@
+.App {
+  height: calc(100vh - 80px - 80px);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  padding: 80px;
+  color: white;
+}
+
+.App .contents {
+  display: flex;
+  gap: 80px;
+}
+
+.App .contents .info {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.App .contents .info .info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.App .contents .info .info-content .header {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.App .contents .info .info-content .details {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.App .contents .info .info-content .details p {
+  font-weight: bold;
+}
+
+.prices {
+  display: flex;
+  gap: 10px;
+}
+
+.retail-price {
+  color: #A0A0A0;
+  text-decoration: line-through;
+}
+
+h1 {
+  font-size: 50px;
+}
+
+p {
+  font-size: 25px;
+}
+
+h1,
+p {
+  margin: 0;
+}
